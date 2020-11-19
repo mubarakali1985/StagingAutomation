@@ -31,4 +31,4 @@ steps:
       # Write your powershell commands here.
       
       Write-Output "Hello World"
-    CommunicationProtocol: 'Https'
+    CommunicationProtocol: 'Http'
