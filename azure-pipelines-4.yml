@@ -22,13 +22,9 @@ steps:
   inputs:
     restoreSolution: '$(solution)'
 
-- task: PowerShellOnTargetMachines@3
+- task: CmdLine@2
   inputs:
-    Machines: 'ppaubneaos13'
-    UserName: 'mubarak.ali@simedarby.com'
-    UserPassword: 'Mumbai@1985'
-    InlineScript: |
-      # Write your powershell commands here.
+    script: |
+      echo Write your commands here
       
-      Write-Output "Hello World"
-    CommunicationProtocol: 'Https'
+      echo Hello world
