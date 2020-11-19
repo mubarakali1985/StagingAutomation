@@ -22,6 +22,10 @@ steps:
   inputs:
     restoreSolution: '$(solution)'
 
+# Command line
+# Run a command line script using Bash on Linux and macOS and cmd.exe on Windows
 - task: CmdLine@2
   inputs:
-    script: 'ax32.exe -startupcmd=compileAll -development'
+    script: 'ax32.exe -startupcmd=compileAll' 
+    #workingDirectory: # Optional
+    #failOnStderr: false # Optional
