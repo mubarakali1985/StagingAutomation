@@ -22,10 +22,12 @@ steps:
   inputs:
     restoreSolution: '$(solution)'
 
-# Command line
-# Run a command line script using Bash on Linux and macOS and cmd.exe on Windows
-- task: CmdLine@2
+- task: PowerShellOnTargetMachines@3
   inputs:
-    script: 'ax32.exe -startupcmd=compileAll' 
-    workingDirectory: 'C:\Program Files (x86)\Microsoft Dynamics AX\60\Client\Bin'
-    #failOnStderr: false # Optional
+    Machines: 'ppaubneaos13.sdiad.simedarbyindustrial.com'
+    UserName: 'mubarak.ali@simedarby.com'
+    UserPassword: 'Mumbai@1985'
+    InlineScript: |
+      # Write your powershell commands here.
+      
+      Write-Output "Hello World"
