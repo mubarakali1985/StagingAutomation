@@ -1,0 +1,143 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: JOB
+
+; Microsoft Dynamics AX Job: SDI_updateNetPriceForExcludeItems unloaded
+; --------------------------------------------------------------------------------
+  JOBVERSION 1
+  
+  SOURCE #SDI_updateNetPriceForExcludeItems
+    #static void SDI_updateNetPriceForExcludeItems(Args _args)
+    #{
+    #    DialogButton                    db;
+    #    CommaTextIO                     csvFile;
+    #    container                       readCon;
+    #    DialogField                     dfFileName, dUpdateValue,dataAreaField;
+    #    FileName                        fileName, logFileName;
+    #    FileIOPermission                permission;
+    #    Dialog                          dialog;
+    #    Counter                         icount,lineCount,skipped;
+    #
+    #    boolean                         first = true;
+    #    ItemId                          ItemId;
+    #
+    #    SDI_NetPriceItem                SDI_NetPriceItem;
+    #
+    #    System.IO.StreamWriter          sw;
+    #    str                             swLine;
+    #
+    #    InteropPermission perm = new InteropPermission(InteropKind::ClrInterop);
+    #    System.IO.FileInfo              fileInfo;
+    #    FilenameType                    fileExtension;
+    #    boolean                         update = false;
+    #
+    #    #File
+    #    ;
+    #
+    #    dialog = new Dialog();
+    #    dialog.caption('Insert the Net Price for exculde items');
+    #    dataAreaField        = dialog.addField(extendedTypeStr(DataAreaId), 'CompanyId' );
+    #    dialog.addText(" ");
+    #    dialog.addText("Pick the related file, which need to be insert the exclude items section with in Net Price  ");
+    #    dfFileName = dialog.addField(extendedTypeStr(FileNameOpen));
+    #    dialog.filenameLookupFilter(["All files", #AllFiles]);
+    #
+    #
+    #    if (dialog.run())
+    #    {
+    #        filename    =   dfFileName.value();
+    #    }
+    #    else
+    #        throw warning("Operation cancelled");
+    #
+    #    permission = new FileIOPermission(filename ,#io_read);
+    #    permission.assert();
+    #
+    #    csvFile = new CommaTextIo(filename, #io_read);
+    #    csvFile.inFieldDelimiter(',');
+    #
+    #    readCon = csvFile.read();
+    #
+    #
+    #    fileInfo = new System.IO.FileInfo(filename);
+    #    fileExtension = fileInfo.get_Extension();
+    #
+    #    logFileName = strReplace(filename, fileExtension, ".log");
+    #    sw = new System.IO.StreamWriter(logFileName);
+    #
+    #    ttsBegin;
+    #
+    #    if(readCon)
+    #    {
+    #        while (readCon && conPeek(readCon,1))
+    #        {
+    #            if(first) // To skip the header of the CSV file.
+    #            {
+    #                readCon = csvFile.read();
+    #                first = false;
+    #            }
+    #            else
+    #            {
+    #                lineCount++;
+    #
+    #                itemId      = conPeek(readCon,1);
+    #
+    #
+    #                try
+    #                {
+    #                    select SDI_NetPriceItem
+    #                        where SDI_NetPriceItem.ItemId == ItemId
+    #                           && SDI_NetPriceItem.dataAreaId == dataAreaField.value();
+    #
+    #                    if(!SDI_NetPriceItem)
+    #                    {
+    #                        SDI_NetPriceItem.ItemId = ItemId;
+    #                        SDI_NetPriceItem.insert();
+    #                    }
+    #
+    #
+    #                    swLine = strFmt("Record inserted with the item is :%1",ItemId);
+    #                    sw.WriteLine(swLine);
+    #                    icount++;
+    #
+    #                }
+    #
+    #                catch( Exception::Error)
+    #                {
+    #                    swLine = strFmt("Record inserted with the item is :%1",ItemId);
+    #                    sw.WriteLine(swLine);
+    #                    continue;
+    #                }
+    #
+    #                readCon = csvFile.read();
+    #            }
+    #        }
+    #    }
+    #
+    #    ttsCommit;
+    #    csvFile.finalize();
+    #    CodeAccessPermission::revertAssert();
+    #
+    #    perm.assert();
+    #    info(strfmt("Total record updated successfully - %1",icount));
+    #    info(strfmt("Total record skipped - %1",skipped));
+    #
+    #    swLine = strfmt("Total record successfully created - %1",icount);
+    #    sw.WriteLine(swLine);
+    #    swLine = strfmt("Total record skipped - %1",skipped);
+    #    sw.WriteLine(swLine);
+    #
+    #
+    #    sw.Flush();
+    #    sw.Close();
+    #    sw.Dispose();
+    #    CodeAccessPermission::revertAssert();
+    #}
+  ENDSOURCE
+  PROPERTIES
+    Origin              #{9B77A1C4-46F5-48AA-B214-DBB8963E5F9B}
+  ENDPROPERTIES
+  
+
+***Element: END
