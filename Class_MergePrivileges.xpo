@@ -1,0 +1,310 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: CLS
+
+; Microsoft Dynamics AX Class: MergePrivileges unloaded
+; --------------------------------------------------------------------------------
+  CLSVERSION 1
+  
+  CLASS #MergePrivileges
+    PROPERTIES
+      Name                #MergePrivileges
+      Origin              #{0189ABE5-A07A-4A6B-8C36-71182206BBAB}
+    ENDPROPERTIES
+    
+    METHODS
+      SOURCE #classDeclaration
+        #class MergePrivileges
+        #{
+        #}
+      ENDSOURCE
+      SOURCE #processEntryPoints
+        #    void processEntryPoints(str _privilegeNameFrom, str _privilegeNameTo)
+        #    {
+        #        TreeNode         fromPrivilege  = TreeNode::findNode(strFmt(@"Security\Privileges\%1\%2", _privilegeNameFrom, "Entry Points"));
+        #        TreeNode         toPrivelege    = TreeNode::findNode(strFmt(@"Security\Privileges\%1\%2", _privilegeNameTo, "Entry Points"));
+        #        TreeNode         fromNode, fromNodeChild;
+        #        TreeNode         toNode, toNodeChild;
+        #        str              suffix;
+        #        str              newName;
+        #        AccessRight      accessRightFrom, accessRightTo;
+        #
+        #        str              a, b;
+        #        anytype          valueFrom;
+        #
+        #
+        #        treenodeIterator iterator, iteratorChild;
+        #
+        #        iterator      = fromPrivilege.AOTiterator();
+        #        fromNode   = iterator.next();
+        #
+        #        while (fromNode)
+        #        {
+        #            newName = "";
+        #
+        #            switch(fromNode.AOTgetProperty("ObjectType"))
+        #            {
+        #                case "WebUrlItem":
+        #                    suffix = "wui";
+        #                    break;
+        #                case "WebActionItem":
+        #                    suffix = "wai";
+        #                    break;
+        #                case "ServiceOperation":
+        #                    suffix = "so";
+        #                    break;
+        #                case "WebManagedContent":
+        #                    suffix = "wmc";
+        #                    break;
+        #                case "MenuItemAction":
+        #                    suffix = "mia";
+        #                    break;
+        #                case "MenuItemDisplay":
+        #                    suffix = "mid";
+        #                    break;
+        #                case "MenuItemOutput":
+        #                    suffix = "mio";
+        #                    break;
+        #            }
+        #            newName = subStr(strRem(fromNode.AOTgetProperty("ObjectName"), ",.-()/\\"), 0, 37) + suffix;
+        #
+        #            toNode = toPrivelege.AOTfindChild(newName);
+        #
+        #            if(!toNode)
+        #            {
+        #                if(!newName)
+        #                {
+        #                    newName = fromNode.AOTgetProperty("ObjectName");
+        #                }
+        #
+        #                toNode = toPrivelege.AOTadd(newName);
+        #                toNode.AOTsetProperties(fromNode.AOTgetProperties());
+        #                toNode.AOTsetProperty("Name", newName);
+        #            }
+        #            else
+        #            {
+        #                if(fromNode.AOTgetProperty("AccessLevel") != toNode.AOTgetProperty("AccessLevel"))
+        #                {
+        #
+        #                    accessRightFrom = SysSecEntryPointManager::AccessLevel2AccessRight(fromNode.AOTgetProperty("AccessLevel"));
+        #                    accessRightTo = SysSecEntryPointManager::AccessLevel2AccessRight(toNode.AOTgetProperty("AccessLevel"));
+        #
+        #                    if(accessRightFrom > accessRightTo)
+        #                    {
+        #                        toNode.AOTsetProperty("AccessLevel", fromNode.AOTgetProperty("AccessLevel"));
+        #                    }
+        #                }
+        #            }
+        #
+        #            if(fromNode.AOTchildNodeCount() > 0)
+        #            {
+        #                info("fromNode.AOTchildNodeCount() > 0");
+        #                /*
+        #                iteratorChild = fromNode.AOTiterator();
+        #                fromNodeChild = iteratorChild.next();
+        #
+        #                while (fromNodeChild)
+        #                {
+        #                    toNodeChild = toNode.AOTfindChild(fromNodeChild.AOTname());
+        #
+        #                    this.processNode(fromNodeChild, toNodeChild, toNode);
+        #
+        #                    fromNodeChild   = iteratorChild.next();
+        #                }
+        #                */
+        #            }
+        #
+        #            fromNode   = iterator.next();
+        #        }
+        #    }
+        #
+      ENDSOURCE
+      SOURCE #processForm
+        #    void processForm(str _privilegeNameFrom, str _privilegeNameTo)
+        #    {
+        #        TreeNode         fromPrivilege  = TreeNode::findNode(strFmt(@"Security\Privileges\%1\%2", _privilegeNameFrom, "Permissions\\Forms"));
+        #        TreeNode         toPrivelege    = TreeNode::findNode(strFmt(@"Security\Privileges\%1\%2", _privilegeNameTo, "Permissions\\Forms"));
+        #        TreeNode         fromNode, fromNodeChild;
+        #        TreeNode         toNode, toNodeChild;
+        #
+        #        treenodeIterator iterator, iteratorChild;
+        #
+        #        iterator      = fromPrivilege.AOTiterator();
+        #        fromNode   = iterator.next();
+        #
+        #        while (fromNode)
+        #        {
+        #            toNode = toPrivelege.AOTfindChild(strRem(fromNode.AOTname(), ".()"));
+        #
+        #            if(!toNode)
+        #            {
+        #                toNode = toPrivelege.AOTadd(strRem(fromNode.AOTname(), ".()"));
+        #                toNode.AOTsetProperties(fromNode.AOTgetProperties());
+        #            }
+        #
+        #            if(fromNode.AOTchildNodeCount() > 0)
+        #            {
+        #                iteratorChild = fromNode.AOTiterator();
+        #                fromNodeChild = iteratorChild.next();
+        #
+        #                while (fromNodeChild)
+        #                {
+        #                    toNodeChild = toNode.AOTfindChild(fromNodeChild.AOTname());
+        #
+        #                    if(!toNodeChild)
+        #                    {
+        #                        toNodeChild = toNode.AOTadd(strRem(fromNodeChild.AOTname(), ".()"));
+        #                        toNodeChild.AOTsetProperties(fromNodeChild.AOTgetProperties());
+        #                    }
+        #
+        #                    fromNodeChild   = iteratorChild.next();
+        #                }
+        #            }
+        #
+        #            fromNode   = iterator.next();
+        #        }
+        #    }
+        #
+      ENDSOURCE
+      SOURCE #processNode
+        #    TreeNode processNode(TreeNode _fromNode, TreeNode _toNode, TreeNode _toParent)
+        #    {
+        #        AccessRight      accessRightFrom, accessRightTo;
+        #
+        #        if(!_toNode)
+        #        {
+        #            _toNode = _toParent.AOTadd(strRem(_fromNode.AOTname(), ".()"));
+        #            _toNode.AOTsetProperties(_fromNode.AOTgetProperties());
+        #        }
+        #        else
+        #        {
+        #            if(_fromNode.AOTgetProperty("EffectiveAccess") != _toNode.AOTgetProperty("EffectiveAccess"))
+        #            {
+        #                accessRightFrom = any2int(_fromNode.AOTgetProperty("EffectiveAccess"));
+        #                accessRightTo   = any2int(_toNode.AOTgetProperty("EffectiveAccess"));
+        #
+        #                if(accessRightFrom > accessRightTo)
+        #                {
+        #                    _toNode.AOTsetProperty("EffectiveAccess", accessRightFrom);
+        #                }
+        #            }
+        #        }
+        #
+        #        return _toNode;
+        #    }
+      ENDSOURCE
+      SOURCE #processServerMethods
+        #    void processServerMethods(str _privilegeNameFrom, str _privilegeNameTo)
+        #    {
+        #        TreeNode         fromPrivilege  = TreeNode::findNode(strFmt(@"Security\Privileges\%1\%2", _privilegeNameFrom, "Permissions\\Server Methods"));
+        #        TreeNode         toPrivelege    = TreeNode::findNode(strFmt(@"Security\Privileges\%1\%2", _privilegeNameTo, "Permissions\\Server Methods"));
+        #        TreeNode         fromNode, fromNodeChild;
+        #        TreeNode         toNode, toNodeChild;
+        #        str              suffix;
+        #        str              newName;
+        #
+        #        treenodeIterator iterator, iteratorChild;
+        #
+        #     //   info(fromPrivilege.AOTname());
+        #        iterator      = fromPrivilege.AOTiterator();
+        #        fromNode   = iterator.next();
+        #
+        #        while (fromNode)
+        #        {
+        #            newName = "";
+        #
+        #            toNode = toPrivelege.AOTfindChild(strRem(fromNode.AOTname(), ".()"));
+        #
+        #            toNode = this.processNode(fromNode, toNode, toPrivelege);
+        #
+        #            if(fromNode.AOTchildNodeCount() > 0)
+        #            {
+        #                iteratorChild = fromNode.AOTiterator();
+        #                fromNodeChild = iteratorChild.next();
+        #
+        #                while (fromNodeChild)
+        #                {
+        #                    toNodeChild = toNode.AOTfindChild(fromNodeChild.AOTname());
+        #
+        #                    this.processNode(fromNodeChild, toNodeChild, toNode);
+        #
+        #                    fromNodeChild   = iteratorChild.next();
+        #                }
+        #            }
+        #
+        #            fromNode   = iterator.next();
+        #        }
+        #    }
+        #
+      ENDSOURCE
+      SOURCE #processTables
+        #    void processTables(str _privilegeNameFrom, str _privilegeNameTo)
+        #    {
+        #        TreeNode         fromPrivilege  = TreeNode::findNode(strFmt(@"Security\Privileges\%1\%2", _privilegeNameFrom, "Permissions\\Tables"));
+        #        TreeNode         toPrivelege    = TreeNode::findNode(strFmt(@"Security\Privileges\%1\%2", _privilegeNameTo, "Permissions\\Tables"));
+        #        TreeNode         fromNode, fromNodeChild;
+        #        TreeNode         toNode, toNodeChild;
+        #        str              suffix;
+        #        str              newName;
+        #
+        #        treenodeIterator iterator, iteratorChild;
+        #
+        #     //   info(fromPrivilege.AOTname());
+        #        iterator      = fromPrivilege.AOTiterator();
+        #        fromNode   = iterator.next();
+        #
+        #        while (fromNode)
+        #        {
+        #            newName = "";
+        #
+        #            toNode = toPrivelege.AOTfindChild(strRem(fromNode.AOTname(), ".()"));
+        #
+        #            toNode = this.processNode(fromNode, toNode, toPrivelege);
+        #
+        #            if(fromNode.AOTchildNodeCount() > 0)
+        #            {
+        #                iteratorChild = fromNode.AOTiterator();
+        #                fromNodeChild = iteratorChild.next();
+        #
+        #                while (fromNodeChild)
+        #                {
+        #                    toNodeChild = toNode.AOTfindChild(fromNodeChild.AOTname());
+        #
+        #                    this.processNode(fromNodeChild, toNodeChild, toNode);
+        #
+        #                    fromNodeChild   = iteratorChild.next();
+        #                }
+        #            }
+        #
+        #            fromNode   = iterator.next();
+        #        }
+        #    }
+        #
+      ENDSOURCE
+      SOURCE #main
+        #public static void main(Args _args)
+        #{
+        #    MergePrivileges     mergePrivileges;
+        #    SysSecFlatDataTable sysSecFlatDataTable;
+        #    SecEntity           fromRole = "SDI_Gatekeeper_GLAR";
+        #    SecEntity           toPrivelege = "SDI_Gatekeeper_GLAR";
+        #
+        #    mergePrivileges = new MergePrivileges();
+        #
+        #    while select Privilege from sysSecFlatDataTable
+        #        group by sysSecFlatDataTable.Privilege
+        #        where sysSecFlatDataTable.Privilege
+        #           && sysSecFlatDataTable.Role == fromRole
+        #    {
+        #        mergePrivileges.processEntryPoints(sysSecFlatDataTable.Privilege, toPrivelege);
+        #        mergePrivileges.processTables(sysSecFlatDataTable.Privilege, toPrivelege);
+        #        mergePrivileges.processServerMethods(sysSecFlatDataTable.Privilege, toPrivelege);
+        #        mergePrivileges.processForm(sysSecFlatDataTable.Privilege, toPrivelege);
+        #    }
+        #}
+      ENDSOURCE
+    ENDMETHODS
+  ENDCLASS
+
+***Element: END
